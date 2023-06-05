@@ -4,7 +4,6 @@ set -e
 [ ! -f "$MKDTIMG" ] && MKDTIMG="$ANDROID_ROOT/system/libufdt/utils/src/mkdtboimg.py"
 [ ! -f "$MKDTIMG" ] && (echo "No mkdtbo script/executable found"; exit 1)
 
-
 cd "$KERNEL_TOP"/kernel
 
 echo "================================================="
@@ -28,6 +27,7 @@ for platform in $PLATFORMS; do \
                 COMPRESSED="false"
                 DTBO="true"
                 SOCDTB="waipio-v2.dtb"
+                MODULES="true"
                 ;;
         esac
 
@@ -67,6 +67,11 @@ for platform in $PLATFORMS; do \
             mkdir -p "$PLATFORM_KERNEL_OUT/dtb/"
             cp "$KERNEL_TMP_PLATFORM/arch/arm64/boot/dts/qcom/$SOCDTB" "$PLATFORM_KERNEL_OUT/dtb/"
         fi
+        if [ $MODULES = "true" ]; then
+            echo "Installing kernel modules to $PLATFORM_KERNEL_OUT"
+            # find "$KERNEL_TMP/" -name "*.ko" -exec cp -t "$PLATFORM_KERNEL_OUT" {} +
+            make $BUILD_ARGS_PLATFORM INSTALL_MOD_PATH="$PLATFORM_KERNEL_OUT" INSTALL_MOD_STRIP=1 modules_install
+        fi
         if [ "$DTBO" = "true" ]; then
             DTBO_OUT="$PLATFORM_KERNEL_OUT/dtbo.img"
             echo "Creating $DTBO_OUT ..."
@@ -74,7 +79,6 @@ for platform in $PLATFORMS; do \
             # note: We want wordsplitting in this case.
             $MKDTIMG create $DTBO_OUT $(find "$KERNEL_TMP_PLATFORM/arch/arm64/boot/dts/qcom/" -name "*.dtbo")
         fi
-
     fi
 done
 
