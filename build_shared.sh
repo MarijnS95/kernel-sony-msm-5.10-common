@@ -60,8 +60,7 @@ for platform in $PLATFORMS; do \
 
         echo "The build may take up to 10 minutes. Please be patient ..."
         echo "Building new kernel image ..."
-        echo "Logging to $KERNEL_TMP_PLATFORM/build.log"
-        make $BUILD_ARGS_PLATFORM >"$KERNEL_TMP_PLATFORM/build.log" 2>&1;
+        make $BUILD_ARGS_PLATFORM 2>&1;
 
         echo "Copying new kernel image ..."
         cp "$KERNEL_TMP_PLATFORM/arch/arm64/boot/Image$comp$dtb" "$PLATFORM_KERNEL_OUT/kernel$dtb"
